@@ -275,10 +275,15 @@ jobs:
           #echo ">>>>>>> build a repository index to make the output directory usable as local OPKG source"
           #ln -s `which usign` staging_dir/host/bin/usign
           #echo "$SIGN_KEY" | base64 -d > key-build
-          make package/index
+          make package/index V=sc
           
           # OUTDIR=$GITHUB_WORKSPACE/$PKGTYPE-$ARCH
           OUTDIR=./bin/packages
+          
+          echo "--- find . ---"
+          find .
+          echo "--- END find . ---"
+          
           # mkdir -p $OUTDIR
           # cp -R ./bin/packages/*/base/. $OUTDIR/
           ./staging_dir/host/bin/ccache --max-size=10M --show-stats
