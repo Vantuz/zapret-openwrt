@@ -269,6 +269,10 @@ jobs:
               touch $OUT_DIR/zapret_$PKGVER-$ARCH.$PKGTYPE
               touch $OUT_DIR/luci-app-zapret_$PKGVER-all.$PKGTYPE
           fi
+
+          echo "--- [1] find . ---"
+          find .
+          echo "--- END [1] find . ---"
           
           # find ./bin/packages/*/base -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
           
@@ -280,9 +284,9 @@ jobs:
           # OUTDIR=$GITHUB_WORKSPACE/$PKGTYPE-$ARCH
           OUTDIR=./bin/packages
           
-          echo "--- find . ---"
+          echo "--- [2] find . ---"
           find .
-          echo "--- END find . ---"
+          echo "--- END [2] find . ---"
           
           # mkdir -p $OUTDIR
           # cp -R ./bin/packages/*/base/. $OUTDIR/
