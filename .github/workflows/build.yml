@@ -224,8 +224,8 @@ jobs:
               # ./scripts/feeds update base packages luci
               # ./scripts/feeds install -a
 
-              ./scripts/feeds update nfqws
-              ./scripts/feeds install -a -p nfqws
+              ./scripts/feeds update zapret
+              ./scripts/feeds install -a -p zapret
           fi
           echo "FAKE_BUILD=$FAKE_BUILD" >> $GITHUB_ENV
           echo "PKGVER=$PKGVER" >> $GITHUB_ENV
