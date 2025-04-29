@@ -215,7 +215,7 @@ jobs:
           sed -i -e 's|packages.*\.git|packages https://github.com/openwrt/packages.git|' feeds.conf
           sed -i -e 's|luci.*\.git|luci https://github.com/openwrt/luci.git|' feeds.conf
 
-          echo "src-link zapret $PKGDIR" > feeds.conf
+          echo "src-link zapret $PKGDIR" >> feeds.conf
           cat feeds.conf
           
           mkdir -p ./logs
