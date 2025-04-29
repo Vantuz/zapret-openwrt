@@ -272,8 +272,8 @@ jobs:
           
           # find ./bin/packages/*/base -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
           
-          #echo ">>>>>>> build a repository index to make the output directory usable as local OPKG source"
-          #ln -s `which usign` staging_dir/host/bin/usign
+          echo ">>>>>>> build a repository index to make the output directory usable as local OPKG source"
+          ln -s `which usign` staging_dir/host/bin/usign
           #echo "$SIGN_KEY" | base64 -d > key-build
           make package/index V=sc
           
