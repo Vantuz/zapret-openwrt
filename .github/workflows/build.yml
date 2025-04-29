@@ -208,7 +208,7 @@ jobs:
           MKFN=$PKGDIR/luci-app-zapret/Makefile
           PKGVER=$( grep -s '^PKG_VERSION:=.*' $MKFN | cut -d'=' -f2 )
           echo "PKG_VERSION = $PKGVER"
-          cp -vr $PKGDIR ./package/zapret-openwrt/
+          # cp -vr $PKGDIR ./package/zapret-openwrt/
           
           mv feeds.conf.default feeds.conf
           sed -i -e 's|base.*\.git|base https://github.com/openwrt/openwrt.git|' feeds.conf
@@ -216,6 +216,7 @@ jobs:
           sed -i -e 's|luci.*\.git|luci https://github.com/openwrt/luci.git|' feeds.conf
 
           echo "src-link zapret $PKGDIR" > feeds.conf
+          cat feeds.conf
           
           mkdir -p ./logs
           
@@ -231,85 +232,85 @@ jobs:
           echo "pkgver=$PKGVER" >> $GITHUB_OUTPUT
           echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: Build packages        
-        id: build
-        if: steps.init.outputs.status == 'success'
-        working-directory: '/builder'
-        env:
-          BUILD_DATE: ${{ needs.check.outputs.build_date }}
-          ARCH: ${{ matrix.arch }}
-          BRANCH: ${{ matrix.branch }}
-          SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
-          CCACHE_DIR: '/builder/.ccache'
-        shell: bash
-        run: |
-          MAKE_JOBS=$(($(nproc)+1))
-          echo "$MAKE_JOBS thread compile"
+      # - name: Build packages        
+      #   id: build
+      #   if: steps.init.outputs.status == 'success'
+      #   working-directory: '/builder'
+      #   env:
+      #     BUILD_DATE: ${{ needs.check.outputs.build_date }}
+      #     ARCH: ${{ matrix.arch }}
+      #     BRANCH: ${{ matrix.branch }}
+      #     SIGN_KEY: ${{ secrets.SIGN_PRIVATE_KEY }}
+      #     CCACHE_DIR: '/builder/.ccache'
+      #   shell: bash
+      #   run: |
+      #     MAKE_JOBS=$(($(nproc)+1))
+      #     echo "$MAKE_JOBS thread compile"
           
-          if [ "$FAKE_BUILD" = "false" ]; then
-              make defconfig
-              sed -i 's/CONFIG_LUCI_JSMIN=y/CONFIG_LUCI_JSMIN=n/g' .config
-              echo "------------- .config BEG -------------------"
-              cat .config
-              echo "------------- .config END -------------------"
-              if [ "$ARCH" = "$LUCI_ARCH" ]; then
-                  PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net,luci-app-zapret}/compile`
-              else
-                  PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net}/compile`
-              fi
-              if [ "$MAX_SPEED" = "false" ]; then
-                  make $PKGLIST V=s CONFIG_CCACHE=1 BUILD_LOG=1
-                  make package/index V=s CONFIG_CCACHE=1 BUILD_LOG=1
-              else
-                  make -j$MAKE_JOBS $PKGLIST CONFIG_CCACHE=1
-                  make -j$MAKE_JOBS package/index CONFIG_CCACHE=1
-              fi
-          else
-              OUT_DIR=./bin/packages/dev_x/base
-              mkdir -p $OUT_DIR
-              touch $OUT_DIR/zapret_$PKGVER-$ARCH.$PKGTYPE
-              touch $OUT_DIR/luci-app-zapret_$PKGVER-all.$PKGTYPE
-          fi
+      #     if [ "$FAKE_BUILD" = "false" ]; then
+      #         make defconfig
+      #         sed -i 's/CONFIG_LUCI_JSMIN=y/CONFIG_LUCI_JSMIN=n/g' .config
+      #         echo "------------- .config BEG -------------------"
+      #         cat .config
+      #         echo "------------- .config END -------------------"
+      #         if [ "$ARCH" = "$LUCI_ARCH" ]; then
+      #             PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net,luci-app-zapret}/compile`
+      #         else
+      #             PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net}/compile`
+      #         fi
+      #         if [ "$MAX_SPEED" = "false" ]; then
+      #             make $PKGLIST V=s CONFIG_CCACHE=1 BUILD_LOG=1
+      #             make package/index V=s CONFIG_CCACHE=1 BUILD_LOG=1
+      #         else
+      #             make -j$MAKE_JOBS $PKGLIST CONFIG_CCACHE=1
+      #             make -j$MAKE_JOBS package/index CONFIG_CCACHE=1
+      #         fi
+      #     else
+      #         OUT_DIR=./bin/packages/dev_x/base
+      #         mkdir -p $OUT_DIR
+      #         touch $OUT_DIR/zapret_$PKGVER-$ARCH.$PKGTYPE
+      #         touch $OUT_DIR/luci-app-zapret_$PKGVER-all.$PKGTYPE
+      #     fi
           
-          # find ./bin/packages/*/base -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
+      #     # find ./bin/packages/*/base -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
           
-          #echo ">>>>>>> build a repository index to make the output directory usable as local OPKG source"
-          #ln -s `which usign` staging_dir/host/bin/usign
-          #echo "$SIGN_KEY" | base64 -d > key-build
-          #make package/index
+      #     #echo ">>>>>>> build a repository index to make the output directory usable as local OPKG source"
+      #     #ln -s `which usign` staging_dir/host/bin/usign
+      #     #echo "$SIGN_KEY" | base64 -d > key-build
+      #     #make package/index
           
-          OUTDIR=$GITHUB_WORKSPACE/$PKGTYPE-$ARCH
-          mkdir -p $OUTDIR
-          cp -R ./bin/packages/*/base/. $OUTDIR/
-          ./staging_dir/host/bin/ccache --max-size=10M --show-stats
+      #     OUTDIR=$GITHUB_WORKSPACE/$PKGTYPE-$ARCH
+      #     mkdir -p $OUTDIR
+      #     cp -R ./bin/packages/*/base/. $OUTDIR/
+      #     ./staging_dir/host/bin/ccache --max-size=10M --show-stats
           
-          echo "OUTDIR=$OUTDIR" >> $GITHUB_ENV
-          echo "pkgver=$PKGVER" >> $GITHUB_OUTPUT
-          echo "status=success" >> $GITHUB_OUTPUT
+      #     echo "OUTDIR=$OUTDIR" >> $GITHUB_ENV
+      #     echo "pkgver=$PKGVER" >> $GITHUB_OUTPUT
+      #     echo "status=success" >> $GITHUB_OUTPUT
 
-      - name: Compress build logs
-        if: always()
-        env:
-          ARCH: ${{ matrix.arch }}
-          BRANCH: ${{ matrix.branch }}
-          LOGS_DIR: '/builder/logs'
-        run: |
-          tar -cJvf logs-$BRANCH-$ARCH.tar.xz $LOGS_DIR
+      # - name: Compress build logs
+      #   if: always()
+      #   env:
+      #     ARCH: ${{ matrix.arch }}
+      #     BRANCH: ${{ matrix.branch }}
+      #     LOGS_DIR: '/builder/logs'
+      #   run: |
+      #     tar -cJvf logs-$BRANCH-$ARCH.tar.xz $LOGS_DIR
 
-      - name: Upload packages
-        if: steps.build.outcome == 'success'
-        uses: actions/upload-artifact@main
-        with:
-          path: ${{ env.OUTDIR }}
-          name: zapret,${{ env.PKGTYPE }},${{ matrix.arch }}
-          if-no-files-found: error
+      # - name: Upload packages
+      #   if: steps.build.outcome == 'success'
+      #   uses: actions/upload-artifact@main
+      #   with:
+      #     path: ${{ env.OUTDIR }}
+      #     name: zapret,${{ env.PKGTYPE }},${{ matrix.arch }}
+      #     if-no-files-found: error
 
-      - name: Upload build logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          path: logs-*.tar.xz
-          name: logs-${{ matrix.branch }}-${{ matrix.arch }}
+      # - name: Upload build logs
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     path: logs-*.tar.xz
+      #     name: logs-${{ matrix.branch }}-${{ matrix.arch }}
 
   # release:
   #   needs: [ check, build ]
