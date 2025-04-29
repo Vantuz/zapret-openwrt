@@ -287,15 +287,13 @@ jobs:
           # echo "$SIGN_KEY" | base64 -d > key-build
           make package/index V=sc
 
-          # OUTDIR=$GITHUB_WORKSPACE/$PKGTYPE-$ARCH
-          OUTDIR=./bin/packages
-          
           echo "--- [2] find . ---"
           find .
           echo "--- END [2] find . ---"
-          
-          # mkdir -p $OUTDIR
-          # cp -R ./bin/packages/*/base/. $OUTDIR/
+
+          OUTDIR=$GITHUB_WORKSPACE/$PKGTYPE-$ARCH
+          mkdir -p $OUTDIR
+          cp -R ./bin/packages/*/zapret/. $OUTDIR/
           ./staging_dir/host/bin/ccache --max-size=10M --show-stats
           
           echo "OUTDIR=$OUTDIR" >> $GITHUB_ENV
