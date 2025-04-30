@@ -393,7 +393,7 @@ jobs:
         with:
           pattern: zapret,*
 
-      - name: Put packages into zip
+      - name: Prepare gh-pages repo
         env:
           TAG: ${{ needs.check.outputs.tag }}
           DATE: ${{ needs.check.outputs.date }}
@@ -411,17 +411,19 @@ jobs:
               ARCH=`basename $dir | cut -d, -f3`
               PKGTYPE=`basename $dir | cut -d, -f2`
 
+              echo "Building $ARCH $PKGTYPE"
+          
               mkdir -p _pages/repo/$PKGTYPE/$ARCH
-
+          
               # Copy openwrt indexes
-              if [ $ARCH = 'ipk' ]; then
-                cp $dir/Packages ./_pages/repo/$PKGTYPE/$ARCH/Packages
-                cp $dir/Packages.gz ./_pages/repo/$PKGTYPE/$ARCH/Packages.gz
-                cp $dir/Packages.sig ./_pages/repo/$PKGTYPE/$ARCH/Packages.sig
+              if [ $PKGTYPE = 'ipk' ]; then
+                  cp $dir/Packages ./_pages/repo/$PKGTYPE/$ARCH
+                  cp $dir/Packages.gz ./_pages/repo/$PKGTYPE/$ARCH
+                  cp $dir/Packages.sig ./_pages/repo/$PKGTYPE/$ARCH
               else
-                cp $dir/packages.adb ./_pages/repo/$PKGTYPE/$ARCH/packages.adb
+                  cp $dir/packages.adb ./_pages/repo/$PKGTYPE/$ARCH/packages.adb
               fi
-
+          
               find $dir -type f -regex ".*\(zapret\).*\.[ai]pk$" -exec cp {} ./_pages/repo/$PKGTYPE/$ARCH/ \;
           done
 
