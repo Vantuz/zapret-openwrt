@@ -7,10 +7,10 @@ cmake .
 make
 
 # генерируем ключи
-./usign -G -s secret.key -p public.key -c "nfqws-keenetic OpenWRT repository"
+./usign -G -s secret.key -p public.key -c "zapret-openwrt OpenWRT repository"
 
 # подписываем пакет
-./usign -S -m out/_pages/openwrt/Packages -s secret.key -c "nfqws-keenetic OpenWRT repository"
+./usign -S -m out/_pages/openwrt/Packages -s secret.key -c "zapret-openwrt OpenWRT repository"
 
 # Ключи для OpenWRT репозитория apk
 openssl ecparam -name prime256v1 -genkey -noout -out private-key.pem
