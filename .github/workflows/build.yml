@@ -115,47 +115,46 @@ jobs:
       fail-fast: false
       matrix:
         branch: [ openwrt-24.10, SNAPSHOT ]
-        # branch: [ openwrt-24.10 ]
         arch:
           - aarch64_cortex-a53
-          # - aarch64_cortex-a72
-          # - aarch64_cortex-a76
-          # - aarch64_generic
-          # - arm_arm1176jzf-s_vfp
-          # - arm_arm926ej-s
-          # - arm_cortex-a15_neon-vfpv4
-          # - arm_cortex-a5_vfpv4
-          # - arm_cortex-a7
-          # - arm_cortex-a7_neon-vfpv4
-          # - arm_cortex-a7_vfpv4
-          # - arm_cortex-a8_vfpv3
-          # - arm_cortex-a9
-          # - arm_cortex-a9_neon
-          # - arm_cortex-a9_vfpv3-d16
-          # - arm_fa526
-          # - arm_xscale
-          # - mips64_octeonplus
-          # - mips_24kc
-          # - mips_4kec
-          # - mips_mips32
+          - aarch64_cortex-a72
+          - aarch64_cortex-a76
+          - aarch64_generic
+          - arm_arm1176jzf-s_vfp
+          - arm_arm926ej-s
+          - arm_cortex-a15_neon-vfpv4
+          - arm_cortex-a5_vfpv4
+          - arm_cortex-a7
+          - arm_cortex-a7_neon-vfpv4
+          - arm_cortex-a7_vfpv4
+          - arm_cortex-a8_vfpv3
+          - arm_cortex-a9
+          - arm_cortex-a9_neon
+          - arm_cortex-a9_vfpv3-d16
+          - arm_fa526
+          - arm_xscale
+          - mips64_octeonplus
+          - mips_24kc
+          - mips_4kec
+          - mips_mips32
           - mipsel_24kc
-          # - mipsel_24kc_24kf
-          # - mipsel_74kc
-          # - mipsel_mips32
-          # - x86_64
+          - mipsel_24kc_24kf
+          - mipsel_74kc
+          - mipsel_mips32
+          - x86_64
         isTestOrFake:
           - ${{ needs.check.outputs.test_build == 'true' || needs.check.outputs.fake_build == 'true' }}
         exclude:
           - branch: SNAPSHOT
             arch: arm_cortex-a9_vfpv3-d16
           - { isTestOrFake: true }
-        # include:
-        #   - branch: openwrt-24.10
-        #     arch: x86_64
-        #   - branch: openwrt-24.10
-        #     arch: aarch64_cortex-a53
-        #   - branch: SNAPSHOT
-        #     arch: aarch64_cortex-a53
+        include:
+          - branch: openwrt-24.10
+            arch: x86_64
+          - branch: openwrt-24.10
+            arch: aarch64_cortex-a53
+          - branch: SNAPSHOT
+            arch: aarch64_cortex-a53
     container:
       image: openwrt/sdk:${{ matrix.arch }}-${{ matrix.branch }}
       options: --user root
@@ -212,7 +211,6 @@ jobs:
           MKFN=$PKGDIR/luci-app-zapret/Makefile
           PKGVER=$( grep -s '^PKG_VERSION:=.*' $MKFN | cut -d'=' -f2 )
           echo "PKG_VERSION = $PKGVER"
-          # cp -vr $PKGDIR ./package/zapret-openwrt/
           
           mv feeds.conf.default feeds.conf
           sed -i -e 's|base.*\.git|base https://github.com/openwrt/openwrt.git|' feeds.conf
@@ -225,9 +223,6 @@ jobs:
           mkdir -p ./logs
           
           if [ "$FAKE_BUILD" = "false" ]; then
-              # ./scripts/feeds update base packages luci
-              # ./scripts/feeds install -a
-
               ./scripts/feeds update base packages luci zapret
               ./scripts/feeds install -a -p zapret
           fi
@@ -267,11 +262,6 @@ jobs:
               cat .config
               echo "------------- .config END -------------------"
 
-              # if [ "$ARCH" = "$LUCI_ARCH" ]; then
-              #     PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net,luci-app-zapret}/compile`
-              # else
-              #     PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net}/compile`
-              # fi
               PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net,luci-app-zapret}/compile`
 
               if [ "$MAX_SPEED" = "false" ]; then
@@ -286,20 +276,18 @@ jobs:
               touch $OUT_DIR/luci-app-zapret_$PKGVER-all.$PKGTYPE
           fi
 
-          echo "--- [1] find . ---"
-          find .
-          echo "--- END [1] find . ---"
-          
-          # find ./bin/packages/*/base -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
+          # echo "--- [1] find . ---"
+          # find .
+          # echo "--- END [1] find . ---"
           
           echo ">>>>>>> build a repository index to make the output directory usable as local OPKG source"
           ln -s `which usign` staging_dir/host/bin/usign
           # echo "$SIGN_KEY" | base64 -d > key-build
           make package/index V=sc
 
-          echo "--- [2] find . ---"
-          find .
-          echo "--- END [2] find . ---"
+          # echo "--- [2] find . ---"
+          # find .
+          # echo "--- END [2] find . ---"
 
           OUTDIR=$GITHUB_WORKSPACE/$PKGTYPE-$ARCH
           mkdir -p $OUTDIR
@@ -363,11 +351,7 @@ jobs:
 
           # delete all except apk and ipk files
           find ./sorted -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
-          
-          # LUCI_IPK=$( find . -type f -path "*/zapret,ipk,*/luci-app-zapret*.ipk" -print | head -n 1 )
-          # LUCI_APK=$( find . -type f -path "*/zapret,apk,*/luci-app-zapret*.apk" -print | head -n 1 )
-          # find ./sorted -mindepth 1 -maxdepth 1 -type d -exec cp -f "$LUCI_IPK" "{}/" \;
-          # find ./sorted -mindepth 2 -maxdepth 2 -type d -name "apk" -exec cp -f "$LUCI_APK" "{}/" \;
+
           mkdir -p public
           find ./sorted -mindepth 1 -maxdepth 1 -type d -exec sh -c '7z a ./public/zapret_v${PKGVER}_$(basename "{}" | cut -d, -f3).zip {}/*' \;
           ls -lh ./public/*.zip
