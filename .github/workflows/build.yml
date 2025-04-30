@@ -250,6 +250,11 @@ jobs:
         run: |
           MAKE_JOBS=$(($(nproc)+1))
           echo "$MAKE_JOBS thread compile"
+
+          echo "$OPENWRT_SECRET_KEY" > /builder/key-build
+          echo "$OPENWRT_PUBLIC_KEY" > /builder/key-build.pub
+          echo "$OPENWRT_APK_SECRET_KEY" > /builder/private-key.pem
+          echo "$OPENWRT_APK_PUBLIC_KEY" > /builder/public-key.pem
           
           if [ "$FAKE_BUILD" = "false" ]; then
               make defconfig
@@ -281,12 +286,6 @@ jobs:
           # find ./bin/packages/*/base -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
           
           echo ">>>>>>> build a repository index to make the output directory usable as local OPKG source"
-
-          echo "$OPENWRT_SECRET_KEY" > /builder/key-build
-          echo "$OPENWRT_PUBLIC_KEY" > /builder/key-build.pub
-          echo "$OPENWRT_APK_SECRET_KEY" > /builder/private-key.pem
-          echo "$OPENWRT_APK_PUBLIC_KEY" > /builder/public-key.pem
-
           ln -s `which usign` staging_dir/host/bin/usign
           # echo "$SIGN_KEY" | base64 -d > key-build
           make package/index V=sc
@@ -403,7 +402,7 @@ jobs:
 
           mkdir -p _pages/repo
           
-          for dir in `find . -maxdepth 1 -type d -name "zapret,*,*"`
+          for dir in `find . -maxdepth 1 -type d -name "zapret,ipk,*"`
           do
               ARCH=`basename $dir | cut -d, -f3`
               PKGTYPE=`basename $dir | cut -d, -f2`
@@ -414,7 +413,7 @@ jobs:
               cp $dir/Packages ./_pages/repo/$PKGTYPE/$ARCH/Packages
               cp $dir/Packages.gz ./_pages/repo/$PKGTYPE/$ARCH/Packages.gz
               cp $dir/Packages.sig ./_pages/repo/$PKGTYPE/$ARCH/Packages.sig
-              cp $dir/packages.adb ./_pages/repo/$PKGTYPE/$ARCH/packages.adb
+              # cp $dir/packages.adb ./_pages/repo/$PKGTYPE/$ARCH/packages.adb
           
               find $dir -type f -regex ".*\(zapret\).*\.[ai]pk$" -exec cp {} ./_pages/repo/$PKGTYPE/$ARCH/ \;
           done
