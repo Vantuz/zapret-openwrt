@@ -31,6 +31,10 @@ on:
     tags:
       - v[0-9]+*
 
+permissions:
+  id-token: write
+  pages: write
+
 env:
   TEST_BUILD: ${{ github.event.inputs.test_build == 'true' }}
   FAKE_BUILD: ${{ github.event.inputs.fake_build == 'true' }}
@@ -401,20 +405,23 @@ jobs:
           echo "------------- DIR END -------------------"
 
           mkdir -p _pages/repo
-          
-          for dir in `find . -maxdepth 1 -type d -name "zapret,ipk,*"`
+
+          for dir in `find . -maxdepth 1 -type d -name "zapret,*,*"`
           do
               ARCH=`basename $dir | cut -d, -f3`
               PKGTYPE=`basename $dir | cut -d, -f2`
-          
+
               mkdir -p _pages/repo/$PKGTYPE/$ARCH
-          
+
               # Copy openwrt indexes
-              cp $dir/Packages ./_pages/repo/$PKGTYPE/$ARCH/Packages
-              cp $dir/Packages.gz ./_pages/repo/$PKGTYPE/$ARCH/Packages.gz
-              cp $dir/Packages.sig ./_pages/repo/$PKGTYPE/$ARCH/Packages.sig
-              # cp $dir/packages.adb ./_pages/repo/$PKGTYPE/$ARCH/packages.adb
-          
+              if [ $ARCH -eq 'ipk' ]; then
+                cp $dir/Packages ./_pages/repo/$PKGTYPE/$ARCH/Packages
+                cp $dir/Packages.gz ./_pages/repo/$PKGTYPE/$ARCH/Packages.gz
+                cp $dir/Packages.sig ./_pages/repo/$PKGTYPE/$ARCH/Packages.sig
+              else
+                cp $dir/packages.adb ./_pages/repo/$PKGTYPE/$ARCH/packages.adb
+              fi
+
               find $dir -type f -regex ".*\(zapret\).*\.[ai]pk$" -exec cp {} ./_pages/repo/$PKGTYPE/$ARCH/ \;
           done
 
