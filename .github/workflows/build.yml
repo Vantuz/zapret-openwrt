@@ -266,11 +266,14 @@ jobs:
               echo "------------- .config BEG -------------------"
               cat .config
               echo "------------- .config END -------------------"
-              if [ "$ARCH" = "$LUCI_ARCH" ]; then
-                  PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net,luci-app-zapret}/compile`
-              else
-                  PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net}/compile`
-              fi
+
+              # if [ "$ARCH" = "$LUCI_ARCH" ]; then
+              #     PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net,luci-app-zapret}/compile`
+              # else
+              #     PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net}/compile`
+              # fi
+              PKGLIST=`echo package/{zapret,zapret-tpws,zapret-mdig,zapret-ip2net,luci-app-zapret}/compile`
+
               if [ "$MAX_SPEED" = "false" ]; then
                   make $PKGLIST V=s CONFIG_CCACHE=1 BUILD_LOG=1
               else
@@ -361,10 +364,10 @@ jobs:
           # delete all except apk and ipk files
           find ./sorted -type f ! -regex ".*\(zapret\).*\.[ai]pk$" -delete
           
-          LUCI_IPK=$( find . -type f -path "*/zapret,ipk,*/luci-app-zapret*.ipk" -print | head -n 1 )
-          LUCI_APK=$( find . -type f -path "*/zapret,apk,*/luci-app-zapret*.apk" -print | head -n 1 )
-          find ./sorted -mindepth 1 -maxdepth 1 -type d -exec cp -f "$LUCI_IPK" "{}/" \;
-          find ./sorted -mindepth 2 -maxdepth 2 -type d -name "apk" -exec cp -f "$LUCI_APK" "{}/" \;
+          # LUCI_IPK=$( find . -type f -path "*/zapret,ipk,*/luci-app-zapret*.ipk" -print | head -n 1 )
+          # LUCI_APK=$( find . -type f -path "*/zapret,apk,*/luci-app-zapret*.apk" -print | head -n 1 )
+          # find ./sorted -mindepth 1 -maxdepth 1 -type d -exec cp -f "$LUCI_IPK" "{}/" \;
+          # find ./sorted -mindepth 2 -maxdepth 2 -type d -name "apk" -exec cp -f "$LUCI_APK" "{}/" \;
           mkdir -p public
           find ./sorted -mindepth 1 -maxdepth 1 -type d -exec sh -c '7z a ./public/zapret_v${PKGVER}_$(basename "{}" | cut -d, -f3).zip {}/*' \;
           ls -lh ./public/*.zip
@@ -419,10 +422,14 @@ jobs:
           
               # Copy openwrt indexes
               if [ $PKGTYPE = 'ipk' ]; then
+                  echo "$OPENWRT_PUBLIC_KEY" > ./_pages/repo/$PKGTYPE/$ARCH/public.key
+              
                   cp $dir/Packages ./_pages/repo/$PKGTYPE/$ARCH
                   cp $dir/Packages.gz ./_pages/repo/$PKGTYPE/$ARCH
                   cp $dir/Packages.sig ./_pages/repo/$PKGTYPE/$ARCH
               else
+                  echo "$OPENWRT_APK_PUBLIC_KEY" > ./_pages/repo/$PKGTYPE/$ARCH/public-key.pem
+              
                   cp $dir/packages.adb ./_pages/repo/$PKGTYPE/$ARCH/packages.adb
               fi
           
