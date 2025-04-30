@@ -404,6 +404,8 @@ jobs:
           DATE: ${{ needs.check.outputs.date }}
           BUILD_DATE: ${{ needs.check.outputs.build_date }}
           PKGVER: ${{ needs.build.outputs.pkgver }}
+          OPENWRT_PUBLIC_KEY: ${{ secrets.OPENWRT_PUBLIC_KEY }}
+          OPENWRT_APK_PUBLIC_KEY: ${{ secrets.OPENWRT_APK_PUBLIC_KEY }}
         run: |
           echo "------------- DIR BEG -------------------"
           ls -la
