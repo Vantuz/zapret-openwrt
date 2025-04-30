@@ -414,7 +414,7 @@ jobs:
               mkdir -p _pages/repo/$PKGTYPE/$ARCH
 
               # Copy openwrt indexes
-              if [ $ARCH -eq 'ipk' ]; then
+              if [ $ARCH = 'ipk' ]; then
                 cp $dir/Packages ./_pages/repo/$PKGTYPE/$ARCH/Packages
                 cp $dir/Packages.gz ./_pages/repo/$PKGTYPE/$ARCH/Packages.gz
                 cp $dir/Packages.sig ./_pages/repo/$PKGTYPE/$ARCH/Packages.sig
